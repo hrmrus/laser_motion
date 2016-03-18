@@ -4,8 +4,9 @@ const int pinPhoto = A0;
 const int pinPhoto2 = A1;
 const int led = 13;
 const int led2 = 12;
-int raw = 0;
-int raw2 = 0;
+int raw[2]  = {0,0};
+int raw2[2] = {0,0};
+
 boolean IR1_state = 0;
 boolean IR2_state = 0;
 boolean IR1_already=0;
@@ -22,27 +23,40 @@ void setup() {
   pinMode( led2, OUTPUT );
 }
 void loop() {
-digitalWrite(led2, HIGH);   // turn the LED on (HIGH is the voltage level)
+  // Включить лазер
+  digitalWrite(led2, HIGH);   
   delay(20);               // wait for a second
+  // Замерить сопротивление датчиков
+  raw[0]  = analogRead( pinPhoto );
+  raw2[0] = analogRead( pinPhoto2);
+  // Выключить лазер
   digitalWrite(led2, LOW);    // turn the LED off by making the voltage LOW
   delay(20);
+  // Замерить сопротивление датчиков
+  raw[1]  = analogRead( pinPhoto );
+  raw2[1] = analogRead( pinPhoto2);
 
-  raw = analogRead( pinPhoto );
-  raw2 = analogRead( pinPhoto2 );
+
+  
+  
 /**********************************/
+// Необходимо подобрать разницу значений
+// Для примера я поставил если разница  больше 50, то нет препятствия.
+// Если разница меньше 40, то  есть препятствие.
+
  /* преременной IR1_state присваиваем 0 или 1 в
   зависимости от показаний фоторезистора raw */
-  if( raw > 210){ //
+  if( (raw[1] -  raw[0]) > 50){ //
     IR1_state = 0;}
-  if( raw < 100){
+  if( (raw[1] -  raw[0]) < 40){
     IR1_state = 1;}
 
 /**********************************/
  /* преременной fr2 присваиваем 0 или 1 в
   зависимости от показаний фоторезистора raw */
-   if( raw2 > 210){
+   if( (raw2[1] -  raw2[0]) > 50){
     IR2_state = 0;}
-   if( raw2 < 100){ //
+   if( (raw2[1] -  raw2[0]) > 50){ //
     IR2_state = 1;}
 
 
@@ -97,7 +111,8 @@ if ( !IR1_state && !IR2_state) // IR1 off, IR2 off.
 
   else
     digitalWrite( led, LOW );
-  delay(5);
+  
+  //delay(5); Ненужны лишние задержки
 
 
 }
