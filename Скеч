@@ -1,0 +1,103 @@
+#include <Arduino.h>
+
+const int pinPhoto = A0;
+const int pinPhoto2 = A1;
+const int led = 13;
+const int led2 = 12;
+int raw = 0;
+int raw2 = 0;
+boolean IR1_state = 0;
+boolean IR2_state = 0;
+boolean IR1_already=0;
+boolean IR2_already=0;
+boolean IR1IR2_already=0;
+int  IR1IR2_first=0;
+int Human_Counter_New=0;
+int Human_Counter_Old=0;
+
+void setup() {
+  pinMode( pinPhoto, INPUT );
+  pinMode( pinPhoto2, INPUT );
+  pinMode( led, OUTPUT );
+  pinMode( led2, OUTPUT );
+}
+void loop() {
+digitalWrite(led2, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(20);               // wait for a second
+  digitalWrite(led2, LOW);    // turn the LED off by making the voltage LOW
+  delay(20);
+
+  raw = analogRead( pinPhoto );
+  raw2 = analogRead( pinPhoto2 );
+/**********************************/
+ /* преременной IR1_state присваиваем 0 или 1 в
+  зависимости от показаний фоторезистора raw */
+  if( raw > 210){ //
+    IR1_state = 0;}
+  if( raw < 100){
+    IR1_state = 1;}
+
+/**********************************/
+ /* преременной fr2 присваиваем 0 или 1 в
+  зависимости от показаний фоторезистора raw */
+   if( raw2 > 210){
+    IR2_state = 0;}
+   if( raw2 < 100){ //
+    IR2_state = 1;}
+
+
+/**************************************/
+
+if ( !IR1_state && !IR2_state) // IR1 off, IR2 off.
+  {
+      if ( IR1IR2_first > 0 && IR1IR2_already && IR1_already && IR2_already)
+    {
+      if ( IR1IR2_first == 1) {
+        Human_Counter_New++;
+      }
+      else {
+        Human_Counter_New--;
+      }
+       }
+
+    IR1_already = 0;
+    IR2_already = 0;
+    IR1IR2_already = 0;
+    IR1IR2_first = 0;
+  }
+  if ( IR1_state && !IR2_state) // IR1 on, IR2 off.
+  {
+    IR1_already = 1;
+    if ( !IR2_already ) {
+      IR1IR2_first = 1;
+    }
+   }
+  if ( !IR1_state && IR2_state) // IR1 off, IR2 on.
+  {
+    IR2_already = 1;
+    if ( !IR1_already ) {
+      IR1IR2_first = 2;
+   }
+  }
+  if ( IR1_state && IR2_state) // IR1 on, IR2 on.
+  {
+    IR1IR2_already = 1;
+    }
+  if ( Human_Counter_New < 0 ) {
+    Human_Counter_New = 0;
+  }
+    if ( Human_Counter_New != Human_Counter_Old )
+  {
+    Human_Counter_Old = Human_Counter_New;
+  }
+
+/**************************************/
+  if( Human_Counter_New  > 0)
+    digitalWrite( led, HIGH );
+
+  else
+    digitalWrite( led, LOW );
+  delay(5);
+
+
+}
