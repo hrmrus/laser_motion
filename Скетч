@@ -1,9 +1,10 @@
 #include <Arduino.h>
 
-const int pinPhoto = A0;
-const int pinPhoto2 = A1;
-const int led = 13;
-const int led2 = 12;
+#define pinPhoto   A0 // Фоторезистор на порту...
+#define pinPhoto2  A1 // Фоторезистор на порту...
+#define led        13 // Реле на порту...
+#define led2       12 // Лазер на порту...
+
 int raw[2]  = {0,0};
 int raw2[2] = {0,0};
 
@@ -12,6 +13,7 @@ boolean IR2_state = 0;
 boolean IR1_already=0;
 boolean IR2_already=0;
 boolean IR1IR2_already=0;
+
 int  IR1IR2_first=0;
 int Human_Counter_New=0;
 int Human_Counter_Old=0;
@@ -25,19 +27,16 @@ void setup() {
 void loop() {
   // Включить лазер
   digitalWrite(led2, HIGH);
-  delay(20);               // wait for a second
-  // Замерить сопротивление датчиков
+  delay(20);
+  // Замерить сопротивление датчиков и записать их в масив
   raw[0]  = analogRead( pinPhoto );
   raw2[0] = analogRead( pinPhoto2);
   // Выключить лазер
-  digitalWrite(led2, LOW);    // turn the LED off by making the voltage LOW
+  digitalWrite(led2, LOW);
   delay(20);
-  // Замерить сопротивление датчиков
+  // Замерить сопротивление датчиков и записать их в масив
   raw[1]  = analogRead( pinPhoto );
   raw2[1] = analogRead( pinPhoto2);
-
-
-
 
 /**********************************/
 // Необходимо подобрать разницу значений
@@ -111,5 +110,4 @@ if ( !IR1_state && !IR2_state) // IR1 off, IR2 off.
 
   else
     digitalWrite( led, LOW );
-    
-    }
+}
