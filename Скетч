@@ -111,8 +111,5 @@ if ( !IR1_state && !IR2_state) // IR1 off, IR2 off.
 
   else
     digitalWrite( led, LOW );
-
-  //delay(5); Ненужны лишние задержки
-
-
-}
+    
+    }
