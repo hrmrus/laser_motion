@@ -23,20 +23,24 @@ void setup() {
   pinMode( pinPhoto2, INPUT );
   pinMode( led, OUTPUT );
   pinMode( led2, OUTPUT );
+   Serial.begin(9600);
 }
 void loop() {
   // Включить лазер
   digitalWrite(led2, HIGH);
-  delay(20);
-  // Замерить сопротивление датчиков и записать их в масив
-  raw[0]  = analogRead( pinPhoto );
-  raw2[0] = analogRead( pinPhoto2);
+  delay(6);
+  // Замрить сопротивление датчиков и записать их в масив
+  raw[0]  = analogRead( pinPhoto2 );
+  raw2[0] = analogRead( pinPhoto);
   // Выключить лазер
   digitalWrite(led2, LOW);
-  delay(20);
+  delay(5);
   // Замерить сопротивление датчиков и записать их в масив
-  raw[1]  = analogRead( pinPhoto );
-  raw2[1] = analogRead( pinPhoto2);
+  raw[1]  = analogRead( pinPhoto2 );
+  raw2[1] = analogRead( pinPhoto);
+
+
+Serial.println( raw2[0] );
 
 /**********************************/
 // Необходимо подобрать разницу значений
@@ -45,17 +49,17 @@ void loop() {
 
  /* преременной IR1_state присваиваем 0 или 1 в
   зависимости от показаний фоторезистора raw */
-  if( (raw[0] -  raw[1]) > 200){ //
+  if( (raw[0] -  raw[1]) > 130){ //
     IR1_state = 0;}
-  if( (raw[0] -  raw[1]) < 150){
+  if( (raw[0] -  raw[1]) < 40){
     IR1_state = 1;}
 
 /**********************************/
  /* преременной fr2 присваиваем 0 или 1 в
   зависимости от показаний фоторезистора raw */
-   if( (raw2[0] -  raw2[1]) > 200){
+   if( (raw2[0] -  raw2[1]) > 130){
     IR2_state = 0;}
-   if( (raw2[0] -  raw2[1]) < 150){ //
+   if( (raw2[0] -  raw2[1]) < 40){ //
     IR2_state = 1;}
 
 
