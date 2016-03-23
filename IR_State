@@ -1,0 +1,76 @@
+#include <Arduino.h>
+
+#define pinPhoto   A0 // Фоторезистор на порту...
+#define pinPhoto2  A1 // Фоторезистор на порту...
+#define led        13 // Реле на порту...
+#define laser       12 //Лазер на порту...
+
+int raw[2]  = {0,0};
+int raw2[2] = {0,0};
+
+boolean IR1_state = 0;
+boolean IR2_state = 0;
+
+int ledState = LOW; // состояние светодиода
+ // последний момент времени, когда состояние светодиода изменялось
+unsigned long previousMillis = 0;
+long OnTime = 10; // длительность свечения светодиода (в миллисекундах)
+long OffTime = 10; // светодиод не горит (в миллисекундах)
+ 
+void setup() {
+  
+  pinMode(led2, OUTPUT);
+  pinMode( pinPhoto, INPUT );
+  pinMode( pinPhoto2, INPUT );
+  Serial.begin(9600);
+}
+ 
+void loop() {
+  // выясняем не настал ли момент сменить состояние светодиода
+ 
+  unsigned long currentMillis = millis(); // текущее время в миллисекундах
+  
+  // если светодиод включен и светится больше чем надо
+  if((ledState == HIGH) && (currentMillis - previousMillis >= OnTime))
+  {
+    ledState = LOW; // выключаем
+    previousMillis = currentMillis; // запоминаем момент времени
+    digitalWrite(led2, ledState); // реализуем новое состояние
+    
+    raw[0]  = analogRead( pinPhoto2 );
+    raw2[0] = analogRead( pinPhoto);
+    
+  }
+  else if ((ledState == LOW) && (currentMillis - previousMillis >= OffTime))
+  {
+    ledState = HIGH; // выключаем
+    previousMillis = currentMillis ; // запоминаем момент времени
+    digitalWrite(led2, ledState); // реализуем новое состояние
+    
+    raw[1]  = analogRead( pinPhoto2 );
+    raw2[1] = analogRead( pinPhoto);
+  }
+  
+  /**********************************/
+// Необходимо подобрать разницу значений
+// Для примера я поставил если разница  больше 50, то нет препятствия.
+// Если разница меньше 40, то  есть препятствие.
+
+ /* преременной IR1_state присваиваем 0 или 1 в
+  зависимости от показаний фоторезистора raw */
+  if( (raw[0] -  raw[1]) > 150){ //
+    IR1_state = 0;}
+  if( (raw[0] -  raw[1]) < 100){
+    IR1_state = 1;}
+
+/**********************************/
+ /* преременной fr2 присваиваем 0 или 1 в
+  зависимости от показаний фоторезистора raw */
+   if( (raw2[0] -  raw2[1]) > 150){
+    IR2_state = 0;}
+   if( (raw2[0] -  raw2[1]) < 100){ //
+    IR2_state = 1;}
+    
+    Serial.println( IR2_state );
+
+}
