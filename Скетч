@@ -29,7 +29,7 @@ void loop() {
   // Включить лазер
   digitalWrite(led2, HIGH);
   delay(6);
-  // Замрить сопротивление датчиков и записать их в масив
+  // Замерить сопротивление датчиков и записать их в масив
   raw[0]  = analogRead( pinPhoto2 );
   raw2[0] = analogRead( pinPhoto);
   // Выключить лазер
