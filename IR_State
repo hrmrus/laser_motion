@@ -91,7 +91,7 @@ void loop() {
 #define  _ST_R_01        07      // Шаг 3 в право
 
 
-void stateMach(boolean led1, boolean led2, int * cnt)
+void stateMach(boolean IR1_state, boolean IR2_state, int * cnt)
 {
   static state = 0;
   
@@ -99,47 +99,47 @@ void stateMach(boolean led1, boolean led2, int * cnt)
   {
     case _ST_INIT: 
     {
-      if  (led1 && led2)  state = _ST_11;
+      if  (IR1_state && IR2_state)  state = _ST_11;
       break; 
     }
     case _ST_L_01:
     {
-      if (led1 && led2) {state = _ST_11; *cnt ++;} 
+      if (IR1_state && IR2_state) {state = _ST_11; *cnt ++;} 
       break;
     } 
     case _ST_L_00:
     {
-      if (!led1 && led2) state = _ST_L_01;
-      if (led1 && led2) state = _ST_11;
+      if (!IR1_state && IR2_state) state = _ST_L_01;
+      if (IR1_state && IR12_state) state = _ST_11;
       break;
     } 
     case _ST_L_10:
     {
-      if (!led1 && !led2) state = _ST_L_00;
-      if (led1 && led2) state = _ST_11;
+      if (!IR1_state && !IR2_state) state = _ST_L_00;
+      if (IR1_state && IR2_state) state = _ST_11;
       break;
     } 
     case _ST_11:
     {
-      if (led1 && !led2) state = _ST_L_10;
-      if (!led1 && led2) state = _ST_R_01;
+      if (IR1_state && !IR2_state) state = _ST_L_10;
+      if (!IR1_state && IR2_state) state = _ST_R_01;
       break;  
     }
     case _ST_R_10:
     {
-      if (led1 && led2) state = _ST_11;
-      if (!led1 && !led2) state = _ST_R_00;
+      if (IR1_state && IR2_state) state = _ST_11;
+      if (!IR1_state && !IR2_state) state = _ST_R_00;
       break;  
     }
     case _ST_R_00:
     {
-      if (led1 && led2) state = _ST_11;
-      if (!led1 && led2) state = _ST_R_01;
+      if (IR1_state && IR2_state) state = _ST_11;
+      if (!IR1_state && IR2_state) state = _ST_R_01;
       break;  
     }
     case _ST_R_01:
     {
-      if (led1 && led2) {state = _ST_11; *cnt--; }
+      if (IR1_state && IR2_state) {state = _ST_11; *cnt--; }
       break;  
     }
   }
