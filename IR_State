@@ -9,11 +9,11 @@
 #define laser       12 //Лазер на порту...
 
 
-void stateMach(boolean led1, boolean led2, int * cnt);
+void stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
 
 void setup() {
   
-  pinMode(led2, OUTPUT);
+  pinMode(laser, OUTPUT);
   pinMode( pinPhoto, INPUT );
   pinMode( pinPhoto2, INPUT );
   Serial.begin(9600);
@@ -30,14 +30,14 @@ void loop() {
 /******************************************************************************/
 // замеряем состояние фотоприемников  
   //  Включаем лазер  
-  digitalWrite(led2, HIGHT);  
+  digitalWrite(laser, HIGHT);  
   //  делаем минимальную задержку на срабатывание физики
   delay(1); 
   // замеряем код АЦП  
   raw1[0] = analogRead( pinPhoto2);
   raw2[0] = analogRead( pinPhoto );
   // выключаем лазер
-  digitalWrite(led2, LOW); // реализуем новое состояние
+  digitalWrite(laser, LOW); // реализуем новое состояние
   // делаем минимальную задержку на срабатывание физики
   delay(1); 
   // замеряем код АЦП  
@@ -57,7 +57,7 @@ void loop() {
   else                            IR2_state = 1;
 /******************************************************************************/  
 // Вычисление пересечений человека
-  stateMach (led1, led2, &count);
+  stateMach (IR1_state, IR2_state, &count);
 
 /******************************************************************************/  
 // Вывод отладочной информации
