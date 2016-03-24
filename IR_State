@@ -74,3 +74,78 @@ void loop() {
     Serial.println( IR2_state );
 
 }
+
+
+
+/*******************************************************/
+//
+// вызов функции  StatteMesh (led1, led2, &count);
+// led1, led2 - значение фоторезисторов (bool)
+// count - количество людей прошло (int)
+//
+
+#define  _ST_INIT        00      // Инициализация
+#define  _ST_L_01        01      // шаг 3 в лево
+#define  _ST_L_00        02      // шаг 2 в лево 
+#define  _ST_L_10        03      // щаг 1 в лево
+#define  _ST_11          04      // Просто стоим
+#define  _ST_R_10        05      // Шаг 1 в право
+#define  _ST_R_00        06      // Шаг 2 в право
+#define  _ST_R_01        07      // Шаг 3 в право
+
+
+void StatteMesh(boolean led1, boolean led2, int * cnt)
+{
+  static state = 0;
+  
+  switch (state)
+  {
+    case _ST_INIT: 
+    {
+      if  (led1 && led2)  state = _ST_11;
+      break; 
+    }
+    case _ST_L_01:
+    {
+      if (led1 && led2) {state = _ST_11; *cnt ++;} 
+      break;
+    } 
+    case _ST_L_00:
+    {
+      if (!led1 && led2) state = _ST_L_01;
+      if (led1 && led2) state = _ST_11;
+      break;
+    } 
+    case _ST_L_10:
+    {
+      if (!led1 && !led2) state = _ST_L_00;
+      if (led1 && led2) state = _ST_11;
+      break;
+    } 
+    case _ST_11:
+    {
+      if (led1 && !led2) state = _ST_L_10;
+      if (!led1 && led2) state = _ST_R_01;
+      break;  
+    }
+    case _ST_R_10:
+    {
+      if (led1 && led2) state = _ST_11;
+      if (!led1 && !led2) state = _ST_R_00;
+      break;  
+    }
+    case _ST_R_00:
+    {
+      if (led1 && led2) state = _ST_11;
+      if (!led1 && led2) state = _ST_R_01;
+      break;  
+    }
+    case _ST_R_01:
+    {
+      if (led1 && led2) {state = _ST_11; *cnt--; }
+      break;  
+    }
+  }
+}
+/*******************************************************/
+
