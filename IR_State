@@ -12,54 +12,54 @@
 void stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
 
 void setup() {
-  
+
   pinMode(laser, OUTPUT);
   pinMode( pinPhoto, INPUT );
   pinMode( pinPhoto2, INPUT );
   Serial.begin(9600);
 }
- 
+
 void loop() {
 
-  //  Статические переменные 
+  //  Статические переменные
   static int raw1[2]  = {0,0};
   static int raw2[2] = {0,0};
   static boolean IR1_state = 0;
   static boolean IR2_state = 0;
   static int count = 0;         // Количество людей
 /******************************************************************************/
-// замеряем состояние фотоприемников  
-  //  Включаем лазер  
-  digitalWrite(laser, HIGHT);  
+// замеряем состояние фотоприемников
+  //  Включаем лазер
+  digitalWrite(laser, HIGH);
   //  делаем минимальную задержку на срабатывание физики
-  delay(1); 
-  // замеряем код АЦП  
+  delay(1);
+  // замеряем код АЦП
   raw1[0] = analogRead( pinPhoto2);
   raw2[0] = analogRead( pinPhoto );
   // выключаем лазер
   digitalWrite(laser, LOW); // реализуем новое состояние
   // делаем минимальную задержку на срабатывание физики
-  delay(1); 
-  // замеряем код АЦП  
+  delay(1);
+  // замеряем код АЦП
   raw1[1] = analogRead( pinPhoto2 );
   raw2[1] = analogRead( pinPhoto);
-/******************************************************************************/  
-// вычисляем наличие  препятствия на пути  
+/******************************************************************************/
+// вычисляем наличие  препятствия на пути
 
   // переменной IR1_state присваиваем 0 или 1 в
-  // зависимости от показаний фоторезистора raw 
-  if( (raw1[0] -  raw1[1]) > 150) IR1_state = 0;}
-  else                            IR1_state = 1;}
+  // зависимости от показаний фоторезистора raw
+  if( (raw1[0] -  raw1[1]) > 150) IR1_state = 0;
+  else                            IR1_state = 1;
 
   // переменной fr2 присваиваем 0 или 1 в
   // зависимости от показаний фоторезистора raw */
   if( (raw2[0] -  raw2[1]) > 150) IR2_state = 0;
   else                            IR2_state = 1;
-/******************************************************************************/  
+/******************************************************************************/
 // Вычисление пересечений человека
   stateMach (IR1_state, IR2_state, &count);
 
-/******************************************************************************/  
+/******************************************************************************/
 // Вывод отладочной информации
 
 #ifdef DEBUG
@@ -83,7 +83,7 @@ void loop() {
 
 #define  _ST_INIT        00      // Инициализация
 #define  _ST_L_01        01      // шаг 3 в лево
-#define  _ST_L_00        02      // шаг 2 в лево 
+#define  _ST_L_00        02      // шаг 2 в лево
 #define  _ST_L_10        03      // шаг 1 в лево
 #define  _ST_11          04      // Просто стоим
 #define  _ST_R_10        05      // Шаг 1 в право
@@ -93,54 +93,54 @@ void loop() {
 
 void stateMach(boolean IR1_state, boolean IR2_state, int * cnt)
 {
-  static state = 0;
-  
+  static int state = 0;
+
   switch (state)
   {
-    case _ST_INIT: 
+    case _ST_INIT:
     {
       if  (IR1_state && IR2_state)  state = _ST_11;
-      break; 
+      break;
     }
     case _ST_L_01:
     {
-      if (IR1_state && IR2_state) {state = _ST_11; *cnt ++;} 
+      if (IR1_state && IR2_state) {state = _ST_11; *cnt ++;}
       break;
-    } 
+    }
     case _ST_L_00:
     {
       if (!IR1_state && IR2_state) state = _ST_L_01;
-      if (IR1_state && IR12_state) state = _ST_11;
+      if (IR1_state && IR2_state) state = _ST_11;
       break;
-    } 
+    }
     case _ST_L_10:
     {
       if (!IR1_state && !IR2_state) state = _ST_L_00;
       if (IR1_state && IR2_state) state = _ST_11;
       break;
-    } 
+    }
     case _ST_11:
     {
       if (IR1_state && !IR2_state) state = _ST_L_10;
       if (!IR1_state && IR2_state) state = _ST_R_01;
-      break;  
+      break;
     }
     case _ST_R_10:
     {
       if (IR1_state && IR2_state) state = _ST_11;
       if (!IR1_state && !IR2_state) state = _ST_R_00;
-      break;  
+      break;
     }
     case _ST_R_00:
     {
       if (IR1_state && IR2_state) state = _ST_11;
       if (!IR1_state && IR2_state) state = _ST_R_01;
-      break;  
+      break;
     }
     case _ST_R_01:
     {
       if (IR1_state && IR2_state) {state = _ST_11; *cnt--; }
-      break;  
+      break;
     }
   }
 }
