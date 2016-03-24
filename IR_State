@@ -1,156 +1,318 @@
 #include <Arduino.h>
 
+
+
 // когда закончишь отлаживать зацементируй
+
 #define DEBUG
 
+
+
 #define pinPhoto   A0 // Фоторезистор на порту...
+
 #define pinPhoto2  A1 // Фоторезистор на порту...
+
 #define led        13 // Реле на порту...
+
 #define laser       12 //Лазер на порту...
 
 
-void stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
+
+
+
+int stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
+
+
 
 void setup() {
 
+
+
   pinMode(laser, OUTPUT);
+
   pinMode( pinPhoto, INPUT );
+
   pinMode( pinPhoto2, INPUT );
+
   Serial.begin(9600);
+
 }
+
+
 
 void loop() {
 
+
+
   //  Статические переменные
+
   static int raw1[2]  = {0,0};
+
   static int raw2[2] = {0,0};
+
   static boolean IR1_state = 0;
+
   static boolean IR2_state = 0;
+
   static int count = 0;         // Количество людей
+
 /******************************************************************************/
+
 // замеряем состояние фотоприемников
+
   //  Включаем лазер
+
   digitalWrite(laser, HIGH);
+
   //  делаем минимальную задержку на срабатывание физики
+
   delay(10);
+
   // замеряем код АЦП
+
   raw1[0] = analogRead( pinPhoto2);
+
   raw2[0] = analogRead( pinPhoto );
+
   // выключаем лазер
+
   digitalWrite(laser, LOW); // реализуем новое состояние
+
   // делаем минимальную задержку на срабатывание физики
+
   delay(10);
+
   // замеряем код АЦП
+
   raw1[1] = analogRead( pinPhoto2 );
+
   raw2[1] = analogRead( pinPhoto);
+
 /******************************************************************************/
+
 // вычисляем наличие  препятствия на пути
 
+
+
   // переменной IR1_state присваиваем 0 или 1 в
+
   // зависимости от показаний фоторезистора raw
+
   if( (raw1[0] -  raw1[1]) > 150) IR1_state = 1;
+
   else                            IR1_state = 0;
 
+
+
   // переменной fr2 присваиваем 0 или 1 в
+
   // зависимости от показаний фоторезистора raw */
+
   if( (raw2[0] -  raw2[1]) > 150) IR2_state = 1;
+
   else                            IR2_state = 0;
-/******************************************************************************/
-// Вычисление пересечений человека
-  stateMach (IR1_state, IR2_state, &count);
 
 /******************************************************************************/
+
+// Вычисление пересечений человека
+
+  int stat;
+
+  stat = stateMach (IR1_state, IR2_state, &count);
+
+
+
+/******************************************************************************/
+
 // Вывод отладочной информации
 
+
+
 #ifdef DEBUG
+
   static boolean IR1_state_old = 0;
+
   static boolean IR2_state_old = 0;
+
   if (IR1_state_old != IR1_state | IR2_state_old != IR2_state )
+
   {
+
     Serial.print( "State sensor: I-");
+
     Serial.print( IR1_state );
+
     Serial.print( " II-");
+
     Serial.print( IR2_state );
+
     Serial.print( " Count Men: ");
-    Serial.println( count );
+
+    Serial.print( count );
+
+    Serial.print( " Stat SM: ");
+
+    Serial.println( stat );
+
+
 
   } 
+
   IR1_state_old = IR1_state;
+
   IR2_state_old = IR2_state;   
+
 #endif
+
 }
+
+
+
+
 
 
 
 /*******************************************************/
-//
-// вызов функции  stateMach (led1, led2, &count);
-// led1, led2 - значение фоторезисторов (bool)
-// count - количество людей прошло (int)
+
 //
 
+// вызов функции  stateMach (led1, led2, &count);
+
+// led1, led2 - значение фоторезисторов (bool)
+
+// count - количество людей прошло (int)
+
+//
+
+
+
 #define  _ST_INIT        00      // Инициализация
+
 #define  _ST_L_01        01      // шаг 3 в лево
+
 #define  _ST_L_00        02      // шаг 2 в лево
+
 #define  _ST_L_10        03      // шаг 1 в лево
+
 #define  _ST_11          04      // Просто стоим
+
 #define  _ST_R_10        05      // Шаг 1 в право
+
 #define  _ST_R_00        06      // Шаг 2 в право
+
 #define  _ST_R_01        07      // Шаг 3 в право
 
 
-void stateMach(boolean IR1_state, boolean IR2_state, int *cnt)
+
+
+
+int stateMach(boolean IR1_state, boolean IR2_state, int *cnt)
+
 {
+
   static int state = 0;
 
+
+
   switch (state)
+
   {
+
     case _ST_INIT:
+
     {
+
       if  (IR1_state && IR2_state)  state = _ST_11;
+
       break;
+
     }
+
     case _ST_L_01:
+
     {
-      if (IR1_state && IR2_state) {state = _ST_11; *cnt ++;}
+
+      if (IR1_state && IR2_state) {state = _ST_11; (*cnt) ++;}
+
       break;
+
     }
+
     case _ST_L_00:
+
     {
+
       if (!IR1_state && IR2_state) state = _ST_L_01;
+
       if (IR1_state && IR2_state) state = _ST_11;
+
       break;
+
     }
+
     case _ST_L_10:
+
     {
+
       if (!IR1_state && !IR2_state) state = _ST_L_00;
+
       if (IR1_state && IR2_state) state = _ST_11;
+
       break;
+
     }
+
     case _ST_11:
+
     {
+
       if (IR1_state && !IR2_state) state = _ST_L_10;
+
       if (!IR1_state && IR2_state) state = _ST_R_01;
+
       break;
+
     }
-    case _ST_R_10:
-    {
-      if (IR1_state && IR2_state) state = _ST_11;
-      if (!IR1_state && !IR2_state) state = _ST_R_00;
-      break;
-    }
-    case _ST_R_00:
-    {
-      if (IR1_state && IR2_state) state = _ST_11;
-      if (!IR1_state && IR2_state) state = _ST_R_01;
-      break;
-    }
+
     case _ST_R_01:
+
     {
-      if (IR1_state && IR2_state) {state = _ST_11; *cnt--; }
+
+      if (IR1_state && IR2_state) state = _ST_11;
+
+      if (!IR1_state && !IR2_state) state = _ST_R_00;
+
       break;
+
     }
+
+    case _ST_R_00:
+
+    {
+
+      if (IR1_state && IR2_state) state = _ST_11;
+
+      if (IR1_state && !IR2_state) state = _ST_R_10;
+
+      break;
+
+    }
+
+    case _ST_R_10:
+
+    {
+
+      if (IR1_state && IR2_state) {state = _ST_11; (*cnt)--; }
+
+      break;
+
+    }
+
   }
+
+  return state;
+
 }
+
 /*******************************************************/
 
