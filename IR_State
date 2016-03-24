@@ -1,7 +1,5 @@
 #include <Arduino.h>
 
-
-
 // когда закончишь отлаживать зацементируй
 
 #define DEBUG
@@ -17,16 +15,11 @@
 #define laser       12 //Лазер на порту...
 
 
-
-
-
 int stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
 
 
 
 void setup() {
-
-
 
   pinMode(laser, OUTPUT);
 
@@ -39,12 +32,9 @@ void setup() {
 }
 
 
-
 void loop() {
 
-
-
-  //  Статические переменные
+//  Статические переменные
 
   static int raw1[2]  = {0,0};
 
@@ -66,7 +56,7 @@ void loop() {
 
   //  делаем минимальную задержку на срабатывание физики
 
-  delay(10);
+  delay(7);
 
   // замеряем код АЦП
 
@@ -80,7 +70,7 @@ void loop() {
 
   // делаем минимальную задержку на срабатывание физики
 
-  delay(10);
+  delay(6);
 
   // замеряем код АЦП
 
@@ -94,7 +84,7 @@ void loop() {
 
 
 
-  // переменной IR1_state присваиваем 0 или 1 в
+         // переменной IR1_state присваиваем 0 или 1 в
 
   // зависимости от показаний фоторезистора raw
 
@@ -102,9 +92,7 @@ void loop() {
 
   else                            IR1_state = 0;
 
-
-
-  // переменной fr2 присваиваем 0 или 1 в
+         // переменной IR2_state присваиваем 0 или 1 в
 
   // зависимости от показаний фоторезистора raw */
 
@@ -115,19 +103,13 @@ void loop() {
 /******************************************************************************/
 
 // Вычисление пересечений человека
-
   int stat;
 
   stat = stateMach (IR1_state, IR2_state, &count);
 
-
-
 /******************************************************************************/
 
 // Вывод отладочной информации
-
-
-
 #ifdef DEBUG
 
   static boolean IR1_state_old = 0;
@@ -156,34 +138,22 @@ void loop() {
 
 
 
-  } 
+  }
 
   IR1_state_old = IR1_state;
 
-  IR2_state_old = IR2_state;   
+  IR2_state_old = IR2_state;
 
 #endif
 
 }
-
-
-
-
-
-
-
 /*******************************************************/
-
-//
 
 // вызов функции  stateMach (led1, led2, &count);
 
 // led1, led2 - значение фоторезисторов (bool)
 
 // count - количество людей прошло (int)
-
-//
-
 
 
 #define  _ST_INIT        00      // Инициализация
@@ -202,17 +172,11 @@ void loop() {
 
 #define  _ST_R_01        07      // Шаг 3 в право
 
-
-
-
-
 int stateMach(boolean IR1_state, boolean IR2_state, int *cnt)
 
 {
 
   static int state = 0;
-
-
 
   switch (state)
 
