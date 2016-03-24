@@ -1,10 +1,7 @@
 #include <Arduino.h>
 
-// когда закончишь отлаживать зацементируй
 
-#define DEBUG
-
-
+#define DEBUG    // когда закончишь отлаживать зацементируй
 
 #define pinPhoto   A0 // Фоторезистор на порту...
 
@@ -14,12 +11,12 @@
 
 #define laser       12 //Лазер на порту...
 
-
 int stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
 
 
-
 void setup() {
+
+
 
   pinMode(laser, OUTPUT);
 
@@ -31,10 +28,8 @@ void setup() {
 
 }
 
-
 void loop() {
-
-//  Статические переменные
+                               //  Статические переменные
 
   static int raw1[2]  = {0,0};
 
@@ -46,80 +41,48 @@ void loop() {
 
   static int count = 0;         // Количество людей
 
-/******************************************************************************/
+/************************ Замеряем состояние фотоприемников ********************/
 
-// замеряем состояние фотоприемников
-
-  //  Включаем лазер
-
+  //  ВКЛЮЧЕМ лазер
   digitalWrite(laser, HIGH);
-
-  //  делаем минимальную задержку на срабатывание физики
-
-  delay(7);
-
+  delay(6); //  делаем минимальную задержку на срабатывание физики
   // замеряем код АЦП
-
   raw1[0] = analogRead( pinPhoto2);
-
   raw2[0] = analogRead( pinPhoto );
 
-  // выключаем лазер
-
+  // ВЫКЛЮЧАЕМ лазер
   digitalWrite(laser, LOW); // реализуем новое состояние
-
-  // делаем минимальную задержку на срабатывание физики
-
-  delay(6);
+  delay(6);// делаем минимальную задержку на срабатывание физики
 
   // замеряем код АЦП
-
   raw1[1] = analogRead( pinPhoto2 );
-
   raw2[1] = analogRead( pinPhoto);
 
-/******************************************************************************/
 
-// вычисляем наличие  препятствия на пути
+/****************** Вычисляем наличие  препятствия на пути *********************/
 
-
-
-         // переменной IR1_state присваиваем 0 или 1 в
-
-  // зависимости от показаний фоторезистора raw
-
+  // переменной IR1_state присваиваем 0 или 1 в зависимости от показаний фоторезистора raw
   if( (raw1[0] -  raw1[1]) > 150) IR1_state = 1;
-
   else                            IR1_state = 0;
 
-         // переменной IR2_state присваиваем 0 или 1 в
-
-  // зависимости от показаний фоторезистора raw */
-
+  // переменной IR2_state присваиваем 0 или 1 в зависимости от показаний фоторезистора raw */
   if( (raw2[0] -  raw2[1]) > 150) IR2_state = 1;
-
   else                            IR2_state = 0;
 
-/******************************************************************************/
 
-// Вычисление пересечений человека
+/************************ Вычисление пересечений человека ***************************/
+
   int stat;
-
-  stat = stateMach (IR1_state, IR2_state, &count);
-
-/******************************************************************************/
-
-// Вывод отладочной информации
-#ifdef DEBUG
-
   static boolean IR1_state_old = 0;
-
   static boolean IR2_state_old = 0;
+  stat = stateMach (IR1_state, IR2_state, &count);
 
   if (IR1_state_old != IR1_state | IR2_state_old != IR2_state )
 
-  {
+// Вывод отладочной информации
 
+#ifdef DEBUG
+  {
     Serial.print( "State sensor: I-");
 
     Serial.print( IR1_state );
@@ -135,28 +98,19 @@ void loop() {
     Serial.print( " Stat SM: ");
 
     Serial.println( stat );
-
-
-
-  }
-
-  IR1_state_old = IR1_state;
-
-  IR2_state_old = IR2_state;
-
+}
 #endif
 
+  IR1_state_old = IR1_state;
+  IR2_state_old = IR2_state;
 }
+
 /*******************************************************/
 
 // вызов функции  stateMach (led1, led2, &count);
-
-// led1, led2 - значение фоторезисторов (bool)
-
 // count - количество людей прошло (int)
 
-
-#define  _ST_INIT        00      // Инициализация
+#define  _ST_INIT        00      // Инициализация В проходе нет человека ir1=1 ir2=1
 
 #define  _ST_L_01        01      // шаг 3 в лево
 
@@ -164,7 +118,7 @@ void loop() {
 
 #define  _ST_L_10        03      // шаг 1 в лево
 
-#define  _ST_11          04      // Просто стоим
+#define  _ST_11          04      // Просто стоим Человек находится в проходе ir1=0 ir2=0
 
 #define  _ST_R_10        05      // Шаг 1 в право
 
@@ -172,105 +126,78 @@ void loop() {
 
 #define  _ST_R_01        07      // Шаг 3 в право
 
+
+
+
+
 int stateMach(boolean IR1_state, boolean IR2_state, int *cnt)
 
 {
-
   static int state = 0;
 
   switch (state)
+ {
 
-  {
+case _ST_INIT:
+    {
+     if  (IR1_state && IR2_state)  state = _ST_11;
+    break;
+    }
 
-    case _ST_INIT:
+case _ST_L_01:
 
     {
+     if (IR1_state && IR2_state) {state = _ST_11; (*cnt) ++;}
+    break;
+    }
 
-      if  (IR1_state && IR2_state)  state = _ST_11;
+case _ST_L_00:
 
-      break;
+    {
+     if (!IR1_state && IR2_state) state = _ST_L_01;
+     if (IR1_state && IR2_state) state = _ST_11;
+    break;
+    }
+
+case _ST_L_10:
+
+    {
+     if (!IR1_state && !IR2_state) state = _ST_L_00;
+     if (IR1_state && IR2_state) state = _ST_11;
+    break;
 
     }
 
-    case _ST_L_01:
+case _ST_11:
 
     {
-
-      if (IR1_state && IR2_state) {state = _ST_11; (*cnt) ++;}
-
-      break;
-
-    }
-
-    case _ST_L_00:
-
-    {
-
-      if (!IR1_state && IR2_state) state = _ST_L_01;
-
-      if (IR1_state && IR2_state) state = _ST_11;
-
-      break;
-
-    }
-
-    case _ST_L_10:
-
-    {
-
-      if (!IR1_state && !IR2_state) state = _ST_L_00;
-
-      if (IR1_state && IR2_state) state = _ST_11;
-
-      break;
-
-    }
-
-    case _ST_11:
-
-    {
-
       if (IR1_state && !IR2_state) state = _ST_L_10;
-
       if (!IR1_state && IR2_state) state = _ST_R_01;
-
       break;
-
     }
 
-    case _ST_R_01:
+case _ST_R_01:
 
     {
+     if (IR1_state && IR2_state) state = _ST_11;
+     if (!IR1_state && !IR2_state) state = _ST_R_00;
+     break;
+     }
 
-      if (IR1_state && IR2_state) state = _ST_11;
-
-      if (!IR1_state && !IR2_state) state = _ST_R_00;
-
-      break;
-
-    }
-
-    case _ST_R_00:
+case _ST_R_00:
 
     {
-
-      if (IR1_state && IR2_state) state = _ST_11;
-
-      if (IR1_state && !IR2_state) state = _ST_R_10;
-
-      break;
-
+     if (IR1_state && IR2_state) state = _ST_11;
+     if (IR1_state && !IR2_state) state = _ST_R_10;
+     break;
     }
 
-    case _ST_R_10:
+case _ST_R_10:
 
     {
-
-      if (IR1_state && IR2_state) {state = _ST_11; (*cnt)--; }
-
-      break;
-
-    }
+    if (IR1_state && IR2_state) {state = _ST_11; (*cnt)--; }
+    break;
+     }
 
   }
 
