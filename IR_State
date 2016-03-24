@@ -32,14 +32,14 @@ void loop() {
   //  Включаем лазер
   digitalWrite(laser, HIGH);
   //  делаем минимальную задержку на срабатывание физики
-  delay(1);
+  delay(10);
   // замеряем код АЦП
   raw1[0] = analogRead( pinPhoto2);
   raw2[0] = analogRead( pinPhoto );
   // выключаем лазер
   digitalWrite(laser, LOW); // реализуем новое состояние
   // делаем минимальную задержку на срабатывание физики
-  delay(1);
+  delay(10);
   // замеряем код АЦП
   raw1[1] = analogRead( pinPhoto2 );
   raw2[1] = analogRead( pinPhoto);
