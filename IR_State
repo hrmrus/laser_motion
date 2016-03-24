@@ -110,21 +110,21 @@ void loop() {
 // вызов функции  stateMach (led1, led2, &count);
 // count - количество людей прошло (int)
 
-#define  _ST_INIT        00      // Инициализация В проходе нет человека ir1=1 ir2=1
+#define  _ST_INIT        00      // Инициализация 
 
-#define  _ST_L_01        01      // шаг 3 в лево
+#define  _ST_L_01        01      // шаг 3 Человек закрыл фр 2               в
 
-#define  _ST_L_00        02      // шаг 2 в лево
+#define  _ST_L_00        02      //    шаг 2 Человек закрыл фр-ы 1 и 2         х  
 
-#define  _ST_L_10        03      // шаг 1 в лево
+#define  _ST_L_10        03      // шаг 1 Человек закрыл фр 1               д
+ 
+#define  _ST_11          04      // Состояоние ожидания Человека нет в проходе фр1=1 фр2=1
 
-#define  _ST_11          04      // Просто стоим Человек находится в проходе ir1=0 ir2=0
+#define  _ST_R_10        05      //        в          Шаг 1 Человек закрыл фр 1
 
-#define  _ST_R_10        05      // Шаг 1 в право
+#define  _ST_R_00        06      //    ы        Шаг 2 Человек закрыл фр-ы 1 и 2
 
-#define  _ST_R_00        06      // Шаг 2 в право
-
-#define  _ST_R_01        07      // Шаг 3 в право
+#define  _ST_R_01        07      //         х         Шаг 3 Человек закрыл фр 2 
 
 
 
@@ -134,10 +134,10 @@ int stateMach(boolean IR1_state, boolean IR2_state, int *cnt)
 
 {
   static int state = 0;
-
+  
   switch (state)
  {
-
+ 
 case _ST_INIT:
     {
      if  (IR1_state && IR2_state)  state = _ST_11;
@@ -145,7 +145,7 @@ case _ST_INIT:
     }
 
 case _ST_L_01:
-
+   
     {
      if (IR1_state && IR2_state) {state = _ST_11; (*cnt) ++;}
     break;
@@ -197,7 +197,7 @@ case _ST_R_10:
     {
     if (IR1_state && IR2_state) {state = _ST_11; (*cnt)--; }
     break;
-     }
+ }
 
   }
 
