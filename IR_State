@@ -63,12 +63,19 @@ void loop() {
 // Вывод отладочной информации
 
 #ifdef DEBUG
-  Serial.print( "Состояние датчиков: 1-");
-  Serial.print( IR1_state );
-  Serial.print( " 2-");
-  Serial.print( IR2_state );
-  Serial.print( " Количество человек: ");
-  Serial.println( count );
+  static boolean IR1_state_old = 0;
+  static boolean IR2_state_old = 0;
+  if (IR1_state_old != IR1_state | IR2_state_old != IR2_state )
+  {
+    Serial.print( "State sensor: 1-");
+    Serial.print( IR1_state );
+    Serial.print( " 2-");
+    Serial.print( IR2_state );
+    Serial.print( " Count Men: ");
+    Serial.println( count );
+  } 
+  IR1_state_old = IR1_state;
+  IR2_state_old = IR2_state;   
 #endif
 }
 
