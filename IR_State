@@ -13,7 +13,6 @@
 
 int stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
 
-
 void setup() {
 
 
@@ -72,12 +71,14 @@ void loop() {
 
 /************************ Вычисление пересечений человека ***************************/
 
-  int stat;
+
   static boolean IR1_state_old = 0;
   static boolean IR2_state_old = 0;
-  stat = stateMach (IR1_state, IR2_state, &count);
+ int stat;
+    // вызов функции  stateMach (IR1_state, IR2_state, &count); count - количество людей прошло (int)
+  stat = stateMach (IR1_state, IR2_state, &count); // передача адреса переменной count.
 
-  if (IR1_state_old != IR1_state | IR2_state_old != IR2_state )
+  if (IR1_state_old != IR1_state || IR2_state_old != IR2_state )
 
 // Вывод отладочной информации
 
@@ -107,37 +108,36 @@ void loop() {
 
 /*******************************************************/
 
-// вызов функции  stateMach (led1, led2, &count);
-// count - количество людей прошло (int)
 
-#define  _ST_INIT        00      // Инициализация 
+
+#define  _ST_INIT        00      // Инициализация
 
 #define  _ST_L_01        01      // шаг 3 Человек закрыл фр 2               в
 
-#define  _ST_L_00        02      //    шаг 2 Человек закрыл фр-ы 1 и 2         х  
+#define  _ST_L_00        02      //    шаг 2 Человек закрыл фр-ы 1 и 2         х
 
 #define  _ST_L_10        03      // шаг 1 Человек закрыл фр 1               д
- 
-#define  _ST_11          04      // Состояние ожидания. Человека нет в проходе фр1==1 фр2==1
+
+#define  _ST_11          04      // Состояние ожидания Человека нет в проходе фр1=1 фр2=1
 
 #define  _ST_R_10        05      //        в          Шаг 1 Человек закрыл фр 1
 
 #define  _ST_R_00        06      //    ы        Шаг 2 Человек закрыл фр-ы 1 и 2
 
-#define  _ST_R_01        07      //         х         Шаг 3 Человек закрыл фр 2 
+#define  _ST_R_01        07      //         х         Шаг 3 Человек закрыл фр 2
 
 
 
 
 
-int stateMach(boolean IR1_state, boolean IR2_state, int *cnt)
+int stateMach(boolean IR1_state, boolean IR2_state, int *cnt) // *cnt указатель для передачи по ссылке данных из &count
 
 {
   static int state = 0;
-  
+
   switch (state)
  {
- 
+
 case _ST_INIT:
     {
      if  (IR1_state && IR2_state)  state = _ST_11;
@@ -145,7 +145,7 @@ case _ST_INIT:
     }
 
 case _ST_L_01:
-   
+
     {
      if (IR1_state && IR2_state) {state = _ST_11; (*cnt) ++;}
     break;
