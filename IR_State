@@ -7,7 +7,7 @@
 
 #define pinPhoto2  A1 // Фоторезистор на порту...
 
-#define led        13 // Реле на порту...
+#define rele        13 // Реле на порту...
 
 #define laser       12 //Лазер на порту...
 
@@ -38,20 +38,23 @@ void loop() {
 
   static boolean IR2_state = 0;
 
-  static int count = 0;         // Количество людей
+  static int count = 0;
+
+
+          // Количество людей
 
 /************************ Замеряем состояние фотоприемников ********************/
 
   //  ВКЛЮЧЕМ лазер
   digitalWrite(laser, HIGH);
-  delay(6); //  делаем минимальную задержку на срабатывание физики
+  delay(10); //  делаем минимальную задержку на срабатывание физики
   // замеряем код АЦП
   raw1[0] = analogRead( pinPhoto2);
   raw2[0] = analogRead( pinPhoto );
 
   // ВЫКЛЮЧАЕМ лазер
   digitalWrite(laser, LOW); // реализуем новое состояние
-  delay(6);// делаем минимальную задержку на срабатывание физики
+  delay(10);// делаем минимальную задержку на срабатывание физики
 
   // замеряем код АЦП
   raw1[1] = analogRead( pinPhoto2 );
@@ -74,15 +77,15 @@ void loop() {
 
   static boolean IR1_state_old = 0;
   static boolean IR2_state_old = 0;
- int stat;
+  int stat;
     // вызов функции  stateMach (IR1_state, IR2_state, &count); count - количество людей прошло (int)
   stat = stateMach (IR1_state, IR2_state, &count); // передача адреса переменной count.
 
   if (IR1_state_old != IR1_state || IR2_state_old != IR2_state )
 
-// Вывод отладочной информации
 
-#ifdef DEBUG
+#ifdef DEBUG // Вывод отладочной информации
+
   {
     Serial.print( "State sensor: I-");
 
@@ -104,6 +107,13 @@ void loop() {
 
   IR1_state_old = IR1_state;
   IR2_state_old = IR2_state;
+  if (count < 1)count = 0;
+
+  if (count >= 1)
+
+digitalWrite(rele, HIGH);
+else
+digitalWrite(rele, LOW);
 }
 
 /*******************************************************/
@@ -202,6 +212,8 @@ case _ST_R_10:
   }
 
   return state;
+
+
 
 }
 
