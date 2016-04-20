@@ -11,7 +11,8 @@
 
 #define laser       12 //Лазер на порту...
 
-int stateMach(boolean IR1_state, boolean IR2_state, int * cnt);
+int stateMach(boolean IR1_state, boolean IR2_state, int time_counter, int * cnt);
+
 
 void setup() {
 
@@ -40,8 +41,10 @@ void loop() {
 
   static int count = 0;
 
+  static int time_counter = 0;
 
-          // Количество людей
+
+
 
 /************************ Замеряем состояние фотоприемников ********************/
 
@@ -79,7 +82,7 @@ void loop() {
   static boolean IR2_state_old = 0;
   int stat;
     // вызов функции  stateMach (IR1_state, IR2_state, &count); count - количество людей прошло (int)
-  stat = stateMach (IR1_state, IR2_state, &count); // передача адреса переменной count.
+  stat = stateMach (IR1_state, IR2_state, time_counter, &count); // передача адреса переменной count.
 
   if (IR1_state_old != IR1_state || IR2_state_old != IR2_state )
 
@@ -102,18 +105,29 @@ void loop() {
     Serial.print( " Stat SM: ");
 
     Serial.println( stat );
+
+    Serial.println( time_counter );
+
+
 }
 #endif
 
   IR1_state_old = IR1_state;
   IR2_state_old = IR2_state;
-  if (count < 1)count = 0;
 
-  if (count >= 1)
+
+
+if( IR1_state == 0 &&  IR2_state == 0 )
+ time_counter++;
+if( IR1_state == 1 &&  IR2_state == 1 )
+   time_counter = 1;
+
+ if (count >= 1)
 
 digitalWrite(rele, HIGH);
 else
 digitalWrite(rele, LOW);
+
 }
 
 /*******************************************************/
@@ -140,7 +154,7 @@ digitalWrite(rele, LOW);
 
 
 
-int stateMach(boolean IR1_state, boolean IR2_state, int *cnt) // *cnt указатель для передачи по ссылке данных из &count
+int stateMach(boolean IR1_state, boolean IR2_state, int time_counter, int *cnt) // *cnt указатель для передачи по ссылке данных из &count
 
 {
   static int state = 0;
@@ -157,7 +171,8 @@ case _ST_INIT:
 case _ST_L_01:
 
     {
-     if (IR1_state && IR2_state) {state = _ST_11; (*cnt) ++;}
+     if (IR1_state && IR2_state && time_counter > 15 ) (*cnt) ++;
+     if (IR1_state && IR2_state ) state = _ST_11;
     break;
     }
 
@@ -206,6 +221,8 @@ case _ST_R_10:
 
     {
     if (IR1_state && IR2_state) {state = _ST_11; (*cnt)--; }
+    if(*cnt < 0)
+    {(*cnt) = 0;}
     break;
  }
 
@@ -218,4 +235,3 @@ case _ST_R_10:
 }
 
 /*******************************************************/
-
