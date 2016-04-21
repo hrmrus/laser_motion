@@ -50,14 +50,14 @@ void loop() {
 
   //  ВКЛЮЧЕМ лазер
   digitalWrite(laser, HIGH);
-  delay(10); //  делаем минимальную задержку на срабатывание физики
+  delay(3); //  делаем минимальную задержку на срабатывание физики
   // замеряем код АЦП
   raw1[0] = analogRead( pinPhoto2);
   raw2[0] = analogRead( pinPhoto );
 
   // ВЫКЛЮЧАЕМ лазер
   digitalWrite(laser, LOW); // реализуем новое состояние
-  delay(10);// делаем минимальную задержку на срабатывание физики
+  delay(3);// делаем минимальную задержку на срабатывание физики
 
   // замеряем код АЦП
   raw1[1] = analogRead( pinPhoto2 );
@@ -67,11 +67,11 @@ void loop() {
 /****************** Вычисляем наличие  препятствия на пути *********************/
 
   // переменной IR1_state присваиваем 0 или 1 в зависимости от показаний фоторезистора raw
-  if( (raw1[0] -  raw1[1]) > 150) IR1_state = 1;
+  if( (raw1[0] -  raw1[1]) > 50) IR1_state = 1;
   else                            IR1_state = 0;
 
   // переменной IR2_state присваиваем 0 или 1 в зависимости от показаний фоторезистора raw */
-  if( (raw2[0] -  raw2[1]) > 150) IR2_state = 1;
+  if( (raw2[0] -  raw2[1]) > 50) IR2_state = 1;
   else                            IR2_state = 0;
 
 
@@ -115,12 +115,11 @@ void loop() {
   IR1_state_old = IR1_state;
   IR2_state_old = IR2_state;
 
-
-
-if( IR1_state == 0 &&  IR2_state == 0 )
- time_counter++;
 if( IR1_state == 1 &&  IR2_state == 1 )
-   time_counter = 1;
+   time_counter = 0;
+   else
+   time_counter++;
+
 
  if (count >= 1)
 
